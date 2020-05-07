@@ -177,4 +177,6 @@ app.listen(PORT, () =>
     console.log("This server is using port "+PORT);
 });
 
+//mongodb+srv://bookmark:book123@cluster0-uuteo.mongodb.net/bookmarksdb?retryWrites=true&w=majority
+
 
