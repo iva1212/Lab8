@@ -3,51 +3,18 @@ const express = require('express');
 const morgan = require( 'morgan' );
 const bodyParcer = require('body-parser');
 const validator = require('./middleware/validateToken');
-const {Bookmarks} = require('./bookmarkModel');
+const {Bookmarks} = require('./models/bookmarkModel');
+const {DATABASE_URL, PORT} = require( './config' );
+const cors = require( './middleware/cors' );
 const app = express();
 const jsonParser = bodyParcer.json();
 var mongoose = require('mongoose');
 
+app.use( cors );
+app.use( express.static( "public" ) );
 app.use(morgan('dev'));
 app.use(validator);
-let listOfBookmarks=
-[
-    {   
-        id:uuid.v4(),
-        title: "BOOKMARK 1",
-        description:"Bookmark to google",
-        url:"www.google.com",
-        rating : 90
-    },
-    {   
-        id:uuid.v4(),
-        title: "BOOKMARK 2",
-        description:"Bookmark to twitter",
-        url: "www.twitter.com",
-        rating : 90
-    },
-    {   
-        id:uuid.v4(),
-        title: "BOOKMARK 3",
-        description:"Bookmark to facebook",
-        url : "www.facebook.com",
-        rating : 90
-    },
-    {   
-        id:uuid.v4(),
-        title: "BOOKMARK 4",
-        description:"Bookmark to instagram",
-        url :"www.instagram.com",
-        rating : 90
-    },
-    {   
-        id:uuid.v4(),
-        title: "BOOKMARK 1",
-        description:"Bookmark to google",
-        url:"www.google.com",
-        rating : 83
-    },
-]
+
 
 app.get('/bookmarks',(req,res)=>{
     Bookmarks.getAllBookmarks()
@@ -183,15 +150,22 @@ app.patch('/bookmark/:id',jsonParser,(req,res)=>{
 
 });
 
-app.listen(8080, () =>
+app.listen(PORT, () =>
 {
     new Promise( (resolve,reject) =>{
-        mongoose.connect('mongodb://localhost/bookmarksdb',{useNewUrlParser: true, useUnifiedTopology: true},(err) =>{
+
+        const settings = {
+            useNewUrlParser: true, 
+            useUnifiedTopology: true, 
+            useCreateIndex: true
+        };
+
+        mongoose.connect(DATABASE_URL,settings,(err) =>{
             if (err){
                 reject(err);
             }
             else{
-                console.log("database connected");
+                console.log("Database connected");
                 return resolve();
             }
         });
@@ -200,7 +174,7 @@ app.listen(8080, () =>
         mongoose.disconnect();
         console.log(err);
     })
-    console.log("This server is using port 8080");
+    console.log("This server is using port "+PORT);
 });
 
 
